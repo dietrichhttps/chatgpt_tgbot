@@ -8,6 +8,7 @@ To run tests, use:
 import unittest
 from unittest.mock import MagicMock, patch
 from dialogue_manager import DialogueManager
+from utils import MessageFormatter, ValidationUtils
 
 
 class TestDialogueManager(unittest.TestCase):
@@ -78,6 +79,100 @@ class TestDialogueManager(unittest.TestCase):
         self.assertEqual(len(history2), 1)
         self.assertEqual(history1[0]["content"], "Hello from user1")
         self.assertEqual(history2[0]["content"], "Hello from user2")
+
+
+class TestMessageFormatter(unittest.TestCase):
+    """Test cases for MessageFormatter class"""
+    
+    def test_format_history_empty(self):
+        """Test formatting empty history"""
+        result = MessageFormatter.format_history([])
+        self.assertEqual(result, "История диалога пуста.")
+    
+    def test_format_history_with_messages(self):
+        """Test formatting history with messages"""
+        messages = [
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Hi there!"},
+        ]
+        result = MessageFormatter.format_history(messages)
+        
+        self.assertIn("История диалога", result)
+        self.assertIn("Вы", result)
+        self.assertIn("Hello", result)
+        self.assertIn("Бот", result)
+        self.assertIn("Hi there!", result)
+    
+    def test_format_history_truncate_long_message(self):
+        """Test that long messages are truncated in history"""
+        long_message = "A" * 150
+        messages = [
+            {"role": "user", "content": long_message},
+        ]
+        result = MessageFormatter.format_history(messages)
+        
+        self.assertIn("...", result)
+        self.assertNotIn(long_message, result)
+    
+    def test_format_error_auth(self):
+        """Test formatting authentication error"""
+        result = MessageFormatter.format_error("auth_error")
+        self.assertIn("Ошибка аутентификации", result)
+    
+    def test_format_error_rate_limit(self):
+        """Test formatting rate limit error"""
+        result = MessageFormatter.format_error("rate_limit")
+        self.assertIn("Превышено ограничение", result)
+    
+    def test_format_welcome(self):
+        """Test formatting welcome message"""
+        result = MessageFormatter.format_welcome()
+        self.assertIn("Привет", result)
+        self.assertIn("/start", result)
+        self.assertIn("/help", result)
+    
+    def test_format_help(self):
+        """Test formatting help message"""
+        result = MessageFormatter.format_help()
+        self.assertIn("Справка", result)
+        self.assertIn("/start", result)
+        self.assertIn("/help", result)
+
+
+class TestValidationUtils(unittest.TestCase):
+    """Test cases for ValidationUtils class"""
+    
+    def test_is_valid_message_empty(self):
+        """Test validation of empty message"""
+        self.assertFalse(ValidationUtils.is_valid_message(""))
+        self.assertFalse(ValidationUtils.is_valid_message("   "))
+    
+    def test_is_valid_message_valid(self):
+        """Test validation of valid message"""
+        self.assertTrue(ValidationUtils.is_valid_message("Hello"))
+        self.assertTrue(ValidationUtils.is_valid_message("How are you?"))
+    
+    def test_is_valid_message_too_long(self):
+        """Test validation of too long message"""
+        long_message = "A" * 2001
+        self.assertFalse(ValidationUtils.is_valid_message(long_message, max_length=2000))
+    
+    def test_get_validation_error_empty(self):
+        """Test validation error for empty message"""
+        error = ValidationUtils.get_validation_error("")
+        self.assertIn("пустым", error)
+    
+    def test_get_validation_error_too_long(self):
+        """Test validation error for too long message"""
+        long_message = "A" * 101
+        error = ValidationUtils.get_validation_error(long_message, max_length=100)
+        self.assertIn("слишком длинное", error)
+        self.assertIn("100", error)
+    
+    def test_get_validation_error_valid(self):
+        """Test validation error for valid message"""
+        error = ValidationUtils.get_validation_error("Hello")
+        self.assertEqual(error, "")
 
 
 if __name__ == '__main__':

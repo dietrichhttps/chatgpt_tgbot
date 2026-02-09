@@ -12,6 +12,7 @@ import openai
 from config import Config, setup_logging
 from dialogue_manager import DialogueManager
 from chatgpt_client import ChatGPTClient
+from utils import MessageFormatter, ValidationUtils
 
 # Setup logging
 logger = setup_logging()
@@ -35,39 +36,29 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     # Clear conversation history
     dialogue_manager.clear_history(user_id)
     
-    welcome_text = (
-        "Привет! 👋\n\n"
-        "Я бот, который использует ChatGPT для ответов на ваши вопросы.\n\n"
-        "Команды:\n"
-        "/start - начать новый диалог\n"
-        "/help - получить помощь\n\n"
-        "Просто напишите мне вопрос, и я помогу вам! 🚀"
-    )
-    
     keyboard = [
         ["Новый запрос"]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     
-    await update.message.reply_text(welcome_text, reply_markup=reply_markup)
+    await update.message.reply_text(
+        MessageFormatter.format_welcome(),
+        reply_markup=reply_markup
+    )
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /help command"""
-    help_text = (
-        "📚 Справка по использованию бота:\n\n"
-        "1️⃣ Просто напишите ваш вопрос или сообщение\n"
-        "2️⃣ Бот обратится к ChatGPT и предоставит ответ\n"
-        "3️⃣ Ваша история диалога сохраняется для лучшего контекста\n"
-        "4️⃣ Нажмите 'Новый запрос' чтобы начать новый диалог\n"
-        "5️⃣ Используйте /start для перезагрузки бота\n\n"
-        "💡 Советы:\n"
-        "• Чем более подробный вопрос, тем лучше ответ\n"
-        "• Бот помнит контекст предыдущих сообщений\n"
-        "• Используйте 'Новый запрос' для смены темы"
-    )
+    await update.message.reply_text(MessageFormatter.format_help())
+
+
+async def help_command_history(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /history command"""
+    user_id = update.effective_user.id
+    messages = dialogue_manager.get_history(user_id)
     
-    await update.message.reply_text(help_text)
+    history_text = MessageFormatter.format_history(messages)
+    await update.message.reply_text(history_text)
 
 
 async def reset_context(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -88,6 +79,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # Check if this is the reset button
     if user_message == "Новый запрос":
         await reset_context(update, context)
+        return
+    
+    # Validate message
+    if not ValidationUtils.is_valid_message(user_message):
+        error = ValidationUtils.get_validation_error(user_message)
+        await update.message.reply_text(error)
         return
     
     try:
@@ -113,17 +110,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         logger.info(f"Response sent to user {user_id}")
         
     except openai.error.AuthenticationError:
-        error_msg = "❌ Ошибка аутентификации. Проверьте API ключ OpenAI."
+        error_msg = MessageFormatter.format_error("auth_error")
         logger.error(error_msg)
         await update.message.reply_text(error_msg)
     
     except openai.error.RateLimitError:
-        error_msg = "⏳ Превышено ограничение на количество запросов. Попробуйте позже."
+        error_msg = MessageFormatter.format_error("rate_limit")
         logger.error("Rate limit exceeded")
         await update.message.reply_text(error_msg)
     
     except Exception as e:
-        error_msg = f"❌ Произошла ошибка: {str(e)}"
+        error_msg = MessageFormatter.format_error("general_error", str(e))
         logger.error(f"Error processing message: {str(e)}")
         await update.message.reply_text(error_msg)
 
@@ -136,12 +133,14 @@ async def main() -> None:
     # Add command handlers
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("history", help_command_history))
     
     # Add message handler for text messages
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     # Start the Bot
     logger.info("Starting bot...")
+    logger.info(f"Using model: {Config.OPENAI_MODEL}")
     await application.run_polling()
 
 
