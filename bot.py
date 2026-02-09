@@ -2,11 +2,12 @@
 """
 ChatGPT Telegram Bot
 
-Простой бот для общения с ChatGPT через Telegram
+Простой бот для общения с ChatGPT через Telegram с поддержкой прокси
 """
 
 import os
 import asyncio
+import httpx
 from dotenv import load_dotenv
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -18,13 +19,31 @@ load_dotenv()
 # Получение токенов
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+OPENAI_PROXY = os.getenv('OPENAI_PROXY')
 
 if not TELEGRAM_TOKEN or not OPENAI_API_KEY:
     print("Ошибка: Проверьте файл .env и наличие токенов")
     exit(1)
 
-# Инициализация OpenAI клиента
-client = OpenAI(api_key=OPENAI_API_KEY)
+# Настройка HTTP клиента с прокси (если указан)
+http_client = None
+if OPENAI_PROXY:
+    print(f"Используем прокси: {OPENAI_PROXY}")
+    http_client = httpx.Client(
+        proxy=OPENAI_PROXY,
+        timeout=30.0
+    )
+else:
+    print("Прокси не настроен, используем прямое соединение")
+
+# Инициализация OpenAI клиента с прокси
+if http_client:
+    client = OpenAI(
+        api_key=OPENAI_API_KEY,
+        http_client=http_client
+    )
+else:
+    client = OpenAI(api_key=OPENAI_API_KEY)
 
 # Хранение истории диалогов
 dialog_history = {}
