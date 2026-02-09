@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-ChatGPT Telegram Bot с Groq LLM
+Telegram бот с использованием Groq Llama 3
 
-Супербыстрый бот с использованием бесплатной Groq API
+Быстрый AI бот на бесплатном API
 """
 
 import os
@@ -55,7 +55,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     
     await update.message.reply_text(
-        "Контекст диалога очищен! Готов к новым вопросам.",
+        "Привет! Я быстрый AI бот на Groq Llama 3. Отправьте мне сообщение, и я отвечу!",
         reply_markup=reply_markup
     )
 
