@@ -126,7 +126,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 def main() -> None:
-    """Start the bot"""
+    """Start bot"""
     # Create the Application
     application = Application.builder().token(Config.TELEGRAM_BOT_TOKEN).build()
     
@@ -141,7 +141,9 @@ def main() -> None:
     # Start the Bot
     logger.info("Starting bot...")
     logger.info(f"Using model: {Config.OPENAI_MODEL}")
-    application.run_polling()
+    
+    # Run the bot
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
 if __name__ == '__main__':
