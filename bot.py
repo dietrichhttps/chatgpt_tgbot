@@ -48,11 +48,16 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     user_id = update.effective_user.id
     
     # Сброс контекста
-        reset_context(user_id)
-        
-        await update.message.reply_text(
-            "Контекст диалога очищен! Готов к новым вопросам."
-        )
+    reset_context(user_id)
+    
+    # Создание клавиатуры
+    keyboard = [["Новый запрос"]]
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    
+    await update.message.reply_text(
+        "Контекст диалога очищен! Готов к новым вопросам.",
+        reply_markup=reply_markup
+    )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Обработчик команды /help"""
