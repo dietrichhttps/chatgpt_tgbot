@@ -48,27 +48,22 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     user_id = update.effective_user.id
     
     # Сброс контекста
-    reset_context(user_id)
-    
-    # Создание клавиатуры
-    keyboard = [["Новый запрос"]]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    
-    await update.message.reply_text(
-        "🚀 Привет! Я супербыстрый AI бот на Groq Llama 3. Отправь мне сообщение, и я отвечу мгновенно!",
-        reply_markup=reply_markup
-    )
+        reset_context(user_id)
+        
+        await update.message.reply_text(
+            "Контекст диалога очищен! Готов к новым вопросам."
+        )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Обработчик команды /help"""
     help_text = (
-        "📋 Доступные команды:\n"
+        "Доступные команды:\n"
         "/start - Начать новый диалог (сбросить историю)\n"
-        "/help - Показать эту справку\n\n"
-        "⚡ Мощь: Groq Llama 3.1 8B\n"
-        "🔥 Скорость: 275 токенов/секунду\n"
-        "💰 Цена: Бесплатно!\n\n"
-        "💬 Просто отправь мне любое текстовое сообщение!"
+        "/help - Показать эту справку\n"
+        "Модель: Groq Llama 3.1 8B\n"
+        "Скорость: 275 токенов/секунду\n"
+        "Цена: Бесплатно!\n\n"
+        "Просто отправь мне любое текстовое сообщение!"
     )
     await update.message.reply_text(help_text)
 
@@ -114,13 +109,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     except Exception as e:
         print(f"Ошибка при обработке сообщения: {e}")
         error_messages = {
-            "rate_limit": "⏰ Превышен лимит запросов к Groq. Попробуйте позже.",
-            "authentication": "❌ Ошибка аутентификации Groq. Проверьте API ключ.",
-            "timeout": "🕐 Время ожидания истекло. Попробуйте еще раз.",
+            "rate_limit": "Превышен лимит запросов к Groq. Попробуйте позже.",
+            "authentication": "Ошибка аутентификации Groq. Проверьте API ключ.",
+            "timeout": "Время ожидания истекло. Попробуйте еще раз.",
         }
         
         # Определяем тип ошибки по ключевым словам
-        error_msg = "❌ Произошла ошибка. Попробуйте еще раз."
+        error_msg = "Произошла ошибка. Попробуйте еще раз."
         if "rate" in str(e).lower():
             error_msg = error_messages["rate_limit"]
         elif "auth" in str(e).lower() or "unauthorized" in str(e).lower():
@@ -143,9 +138,9 @@ def main():
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
         
         # Запуск бота
-        print("🚀 Запуск бота с Groq Llama 3.1...")
-        print("⚡ Модель: llama-3.1-8b-instant")
-        print("💰 API: Бесплатный Groq")
+        print("Запуск бота с Groq Llama 3.1...")
+        print("Модель: llama-3.1-8b-instant")
+        print("API: Бесплатный Groq")
         await application.initialize()
         await application.start()
         await application.updater.start_polling()
