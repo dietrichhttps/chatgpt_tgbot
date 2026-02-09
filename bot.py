@@ -67,7 +67,7 @@ async def reset_context(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     dialogue_manager.clear_history(user_id)
     
     await update.message.reply_text(
-        "✅ Контекст диалога очищен! Теперь я слушаю ваш новый запрос. 👂"
+        "Контекст диалога очищен! Теперь я слушаю ваш новый запрос."
     )
 
 
@@ -109,12 +109,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         logger.info(f"Response sent to user {user_id}")
         
-    except openai.error.AuthenticationError:
+    except openai.AuthenticationError:
         error_msg = MessageFormatter.format_error("auth_error")
         logger.error(error_msg)
         await update.message.reply_text(error_msg)
     
-    except openai.error.RateLimitError:
+    except openai.RateLimitError:
         error_msg = MessageFormatter.format_error("rate_limit")
         logger.error("Rate limit exceeded")
         await update.message.reply_text(error_msg)
@@ -125,7 +125,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await update.message.reply_text(error_msg)
 
 
-async def main() -> None:
+def main() -> None:
     """Start the bot"""
     # Create the Application
     application = Application.builder().token(Config.TELEGRAM_BOT_TOKEN).build()
@@ -141,9 +141,8 @@ async def main() -> None:
     # Start the Bot
     logger.info("Starting bot...")
     logger.info(f"Using model: {Config.OPENAI_MODEL}")
-    await application.run_polling()
+    application.run_polling()
 
 
 if __name__ == '__main__':
-    import asyncio
-    asyncio.run(main())
+    main()
