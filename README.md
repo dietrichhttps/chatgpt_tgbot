@@ -14,8 +14,8 @@ Telegram бот с использованием Groq Llama 3.1 для генер
 
 1. Клонируйте репозиторий:
 ```bash
-git clone <repository_url>
-cd chatgpt_tgbot
+git clone https://github.com/dietrichhttps/groq_tgbot
+cd groq_tgbot
 ```
 
 2. Установите зависимости:
