@@ -2,7 +2,7 @@
 """
 Telegram бот с использованием Groq Llama 3.1
 
-Оптимизирован для PythonAnywhere развертывания
+Простой запуск на локальной машине или ноутбуке
 """
 
 import os
@@ -13,13 +13,10 @@ from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from groq import Groq
 
-# Настройка логирования для PythonAnywhere
+# Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler()  # Вывод в консоль с flush=True
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
 # Загрузка переменных окружения
@@ -38,9 +35,9 @@ if not TELEGRAM_TOKEN or not GROQ_API_KEY:
 # Инициализация Groq клиента
 try:
     client = Groq(api_key=GROQ_API_KEY)
-    logging.info("Groq клиент успешно инициализирован")
+    logging.info("✅ Groq клиент успешно инициализирован")
 except Exception as e:
-    logging.error(f"Ошибка инициализации Groq клиента: {e}")
+    logging.error(f"❌ Ошибка инициализации Groq клиента: {e}")
     exit(1)
 
 # Хранение истории диалогов
@@ -49,7 +46,7 @@ dialog_history = {}
 def reset_context(user_id):
     """Сброс контекста для пользователя"""
     dialog_history[user_id] = []
-    logging.info(f"Контекст сброшен для пользователя {user_id}")
+    logging.info(f"🔄 Контекст сброшен для пользователя {user_id}")
 
 def get_history(user_id):
     """Получение истории диалога для пользователя"""
@@ -84,10 +81,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 Просто напиши мне любой вопрос, и я постараюсь помочь!"""
 
         await update.message.reply_text(welcome_text)
-        logging.info(f"Пользователь {user_id} запустил бота")
+        logging.info(f"👤 Пользователь {user_id} запустил бота")
         
     except Exception as e:
-        logging.error(f"Ошибка в start_command: {e}")
+        logging.error(f"❌ Ошибка в start_command: {e}")
         await update.message.reply_text("Произошла ошибка. Попробуйте еще раз.")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -108,10 +105,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 ❗️ Если бот не отвечает, попробуйте написать еще раз или используйте /reset"""
         
         await update.message.reply_text(help_text)
-        logging.info(f"Пользователь {update.effective_user.id} запросил помощь")
+        logging.info(f"❓ Пользователь {update.effective_user.id} запросил помощь")
         
     except Exception as e:
-        logging.error(f"Ошибка в help_command: {e}")
+        logging.error(f"❌ Ошибка в help_command: {e}")
         await update.message.reply_text("Произошла ошибка. Попробуйте еще раз.")
 
 async def reset_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -121,10 +118,10 @@ async def reset_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         reset_context(user_id)
         
         await update.message.reply_text("🔄 Контекст диалога сброшен. Напишите новый вопрос!")
-        logging.info(f"Пользователь {user_id} сбросил контекст")
+        logging.info(f"🔄 Пользователь {user_id} сбросил контекст")
         
     except Exception as e:
-        logging.error(f"Ошибка в reset_command: {e}")
+        logging.error(f"❌ Ошибка в reset_command: {e}")
         await update.message.reply_text("Произошла ошибка. Попробуйте еще раз.")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -142,7 +139,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         # Получаем историю для отправки в Groq
         history = get_history(user_id)
         
-        logging.info(f"Пользователь {user_id}: {message_text[:50]}...")
+        logging.info(f"📨 Пользователь {user_id}: {message_text[:50]}...")
         
         # Отправляем запрос к Groq с таймаутом
         response = await asyncio.wait_for(
@@ -168,20 +165,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         
         # Отправляем ответ пользователю
         await update.message.reply_text(assistant_message)
-        logging.info(f"Ответ отправлен пользователю {user_id}")
+        logging.info(f"📩 Ответ отправлен пользователю {user_id}")
         
     except asyncio.TimeoutError:
-        logging.error(f"Таймаут при запросе к Groq для пользователя {user_id}")
-        await update.message.reply_text("Время ожидания истекло. Попробуйте еще раз.")
+        logging.error(f"⏰ Таймаут при запросе к Groq для пользователя {user_id}")
+        await update.message.reply_text("⏰ Время ожидания истекло. Попробуйте еще раз.")
         
     except Exception as e:
-        logging.error(f"Ошибка при обработке сообщения от пользователя {user_id}: {e}")
+        logging.error(f"❌ Ошибка при обработке сообщения от пользователя {user_id}: {e}")
         
         error_messages = {
-            "rate_limit": "Превышен лимит запросов к Groq. Попробуйте позже.",
-            "authentication": "Ошибка аутентификации Groq. Проверьте API ключ.",
-            "timeout": "Время ожидания истекло. Попробуйте еще раз.",
-            "connection": "Проблемы с соединением. Попробуйте еще раз."
+            "rate_limit": "🚫 Превышен лимит запросов к Groq. Попробуйте позже.",
+            "authentication": "🔑 Ошибка аутентификации Groq. Проверьте API ключ.",
+            "timeout": "⏰ Время ожидания истекло. Попробуйте еще раз.",
+            "connection": "🔌 Проблемы с соединением. Попробуйте еще раз."
         }
         
         # Определяем тип ошибки по ключевым словам
@@ -207,7 +204,7 @@ def main():
     
     async def run_bot():
         try:
-            # Создание приложения с настройками для PythonAnywhere
+            # Создание приложения
             application = Application.builder().token(TELEGRAM_TOKEN).build()
             
             # Добавление обработчиков
@@ -218,28 +215,29 @@ def main():
             
             # Запуск бота
             logging.info("🚀 Запуск бота с Groq Llama 3.1...")
-            logging.info("Модель: llama-3.1-8b-instant")
-            logging.info("API: Groq (бесплатный)")
-            logging.info("Платформа: PythonAnywhere")
+            logging.info("📋 Модель: llama-3.1-8b-instant")
+            logging.info("💡 API: Groq (бесплатный)")
+            logging.info("💻 Платформа: Локальный запуск")
             
             await application.initialize()
             await application.start()
             await application.updater.start_polling()
             
             logging.info("✅ Бот успешно запущен и готов к работе!")
+            logging.info("💬 Нажмите Ctrl+C для остановки")
             
             # Бесконечный цикл с обработкой прерываний
             while True:
                 try:
                     await asyncio.sleep(1)
                 except (KeyboardInterrupt, SystemExit):
-                    logging.info("Получен сигнал остановки...")
+                    logging.info("🛑 Получен сигнал остановки...")
                     break
                 except Exception as e:
-                    logging.error(f"Ошибка в главном цикле: {e}")
+                    logging.error(f"❌ Ошибка в главном цикле: {e}")
                     
         except Exception as e:
-            logging.error(f"Критическая ошибка при запуске бота: {e}")
+            logging.error(f"❌ Критическая ошибка при запуске бота: {e}")
             raise
     
     # Запуск с обработкой исключений
@@ -248,15 +246,10 @@ def main():
     except KeyboardInterrupt:
         logging.info("🛑 Остановка бота по запросу пользователя...")
     except Exception as e:
-        logging.error(f"Неожиданная ошибка: {e}")
+        logging.error(f"❌ Неожиданная ошибка: {e}")
     finally:
-        logging.info("Бот остановлен")
+        logging.info("👋 Бот остановлен")
 
 if __name__ == '__main__':
-    # Определение среды для PythonAnywhere
-    if os.getenv('PYTHONANYWHERE') or 'PYTHONANYWHERE_SITE' in os.environ:
-        logging.info("Обнаружена среда PythonAnywhere")
-        main()
-    else:
-        logging.info("Локальный запуск")
-        main()
+    logging.info("🔧 Запуск Groq Telegram Bot...")
+    main()
