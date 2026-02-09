@@ -1,135 +1,122 @@
-# Quick Start ChatGPT Telegram Bot
+# Быстрый Старт ChatGPT Telegram Bot
 
-## Get a working bot in 5 minutes!
+## За 5 минут к рабочему боту!
 
-### Step 1: Get tokens (2 minutes)
+### Шаг 1: Получить токены (2 минуты)
 
 #### Telegram Bot Token
-1. Open Telegram → find **@BotFather**
-2. Send `/newbot`
-3. Choose a name and username for the bot
-4. Copy the **token** (looks like `1234567890:ABCdefGH...`)
+1. Откройте Telegram → найдите **@BotFather**
+2. Отправьте `/newbot`
+3. Выберите имя и username для бота
+4. Скопируйте **токен** (выглядит как `1234567890:ABCdefGH...`)
 
 #### OpenAI API Key
-1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-2. Click **"Create new secret key"**
-3. Copy the **key** (looks like `sk-XXXXXX...`)
+1. Перейдите на [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+2. Нажмите **"Create new secret key"**
+3. Скопируйте **ключ** (выглядит как `sk-XXXXXX...`)
 
-### Step 2: Installation (2 minutes)
+### Шаг 2: Установка (2 минуты)
 
 ```bash
-# 1. Clone the project
+# 1. Клонируйте проект
 git clone <repository_url>
 cd chatgpt_tgbot
 
-# 2. Install dependencies
+# 2. Установите зависимости
 pip install -r requirements.txt
 
-# 3. Create .env file
+# 3. Создайте .env файл
 cp .env.example .env
 
-# 4. Edit .env (add your tokens)
-nano .env  # or use VS Code, etc.
+# 4. Отредактируйте .env (добавьте ваши токены)
+nano .env  # или используйте VS Code, и т.д.
 ```
 
-Content of `.env`:
+Содержимое `.env`:
 ```
 TELEGRAM_BOT_TOKEN=1234567890:ABCdefGH...
 OPENAI_API_KEY=sk-XXXXXX...
 ```
 
-### Step 3: Launch (1 minute)
+### Шаг 3: Запуск (1 минута)
 
 ```bash
 python bot.py
 ```
 
-You should see:
+Вы должны увидеть:
 ```
 Starting bot...
 Using model: gpt-3.5-turbo
 ```
 
-### Step 4: Usage (immediately!)
+### Шаг 4: Использование (немедленно!)
 
-1. Open Telegram
-2. Find your bot (by username)
-3. Send `/start`
-4. **Write your questions** - the bot will answer using ChatGPT!
+1. Откройте Telegram
+2. Найдите вашего бота (по username)
+3. Отправьте `/start`
+4. **Пишите вопросы** - бот ответит с помощью ChatGPT!
 
-## Main Commands
+## Основные команды
 
-| Command | Action |
-|---------|--------|
-| `/start` | Start a new dialog (clear history) |
-| `/help` | Get usage instructions |
-| `/history` | Show current dialog history |
-| "New request" | Button to reset context |
+| Команда | Действие |
+|---------|----------|
+| `/start` | Начать новый диалог (очистить историю) |
+| `/help` | Справка по использованию |
+| `/history` | Показать историю текущего диалога |
+| "Новый запрос" | Кнопка для сброса контекста |
 
-## Usage Examples
+## Примеры использования
 
 ```
-You: Hello! How are you?
-Bot: Hello! Thank you for asking. I'm a virtual assistant and don't have feelings, 
-     but I'm here to help you. How can I assist you?
+Вы: Привет! Как дела?
+Бот: Привет! Спасибо за вопрос. Я виртуальный помощник и не имею чувств, 
+     но я здесь, чтобы помочь вам. Как я могу вам помочь?
 
-You: Write a poem about spring
-Bot: Here's a poem about spring...
+Вы: Напиши стихотворение о весне
+Бот: Вот стихотворение о весне...
 
-You: What is it called?
-Bot: (uses context from previous message) The poem is called...
+Вы: Как оно называется?
+Бот: (использует контекст предыдущего сообщения) Стихотворение называется...
 ```
 
-## Docker (alternative)
+## Что-то не работает?
 
-```bash
-# 1. Edit .env
-nano .env
-
-# 2. Run Docker
-docker-compose up -d
-
-# 3. Check logs
-docker-compose logs -f
-```
-
-## Troubleshooting
-
-### Error: "ModuleNotFoundError"
+### Ошибка: "ModuleNotFoundError"
 ```bash
 pip install -r requirements.txt
 ```
 
-### Error: "TELEGRAM_BOT_TOKEN not found"
-- Check that the `.env` file exists in the project root
-- Make sure both tokens are filled in `.env`
+### Ошибка: "TELEGRAM_BOT_TOKEN not found"
+- Проверьте, что файл `.env` существует в корне проекта
+- Убедитесь, что заполнены оба токена в `.env`
 
-### Bot is not responding
-1. Check your internet connection
-2. Verify the OpenAI token is correct
-3. Check your balance at [platform.openai.com/account/billing](https://platform.openai.com/account/billing)
+### Бот не отвечает
+1. Проверьте интернет-соединение
+2. Убедитесь в правильности токена OpenAI
+3. Проверьте баланс на [platform.openai.com/account/billing](https://platform.openai.com/account/billing)
 
-## Tips
+## Советы
 
-1. **Context history** - The bot remembers recent messages for better answers
-2. **Models** - Uses gpt-3.5-turbo (fast), can be changed to gpt-4
-3. **Cost** - Check prices at [openai.com/pricing](https://openai.com/pricing)
-4. **Security** - Never publish the .env file!
+1. **История контекста** - Бот помнит последние сообщения для лучших ответов
+2. **Модели** - Используется gpt-3.5-turbo (быстро), можно менять на gpt-4
+3. **Стоимость** - Проверьте цены на [openai.com/pricing](https://openai.com/pricing)
+4. **Безопасность** - Никогда не публикуйте .env файл!
 
-## Done!
+## Готово!
 
-Now your bot is working! You can:
-- Chat with ChatGPT via Telegram
-- Use it 24/7
-- Let friends chat (if made public)
-- Extend the functionality
+Теперь ваш бот работает! Вы можете:
+- Общаться с ChatGPT через Telegram
+- Использовать его 24/7
+- Позволить друзьям общаться (если сделать публичным)
+- Расширять функционал
 
-## Need help?
+## Нужна помощь?
 
-- Create an issue on GitHub
-- Check the README.md
-- Read the comments in bot.py
+- Создайте issue на GitHub
+- Прочитайте README.md
+- Проверьте комментарии в bot.py
 
 ---
 
-**Good luck with your ChatGPT Telegram Bot!**
+**Удачи с вашим ChatGPT Telegram Bot!**
